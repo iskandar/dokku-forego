@@ -50,6 +50,14 @@ Adding the `SCALE` file is done by copying it into the container. This adds anot
 container's AUFS. As there is a max number of layers you may need to occasionally run a rebuild
 (try `dokku rebuild myapp`) to rebase the container.
 
+## Similar plugins
+
+You can also use these plugins to manage Procfile processes:
+
+* [dokku-logging-supervisord][dokku-logging-supervisord]
+* [dokku-shoreman](https://github.com/statianzo/dokku-shoreman)
+* [dokku-supervisord](https://github.com/statianzo/dokku-supervisord)
+
 ## Thanks
 
 This plugin is heavily based on [dokku-logging-supervisord][dokku-logging-supervisord], which is in turn based on
@@ -61,4 +69,4 @@ This plugin is released under the MIT license. See the file [LICENSE](LICENSE).
 
 [dokku]: https://github.com/progrium/dokku
 [forego]: https://github.com/ddollar/forego
-[dokku-logging-supervisord]: https://github.com/progrium/dokku
+[dokku-logging-supervisord]: https://github.com/sehrope/dokku-logging-supervisord
