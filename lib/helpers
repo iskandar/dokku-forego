@@ -1,0 +1,56 @@
+# Helper functions that can be sourced via "." into the rest of the plugin
+#
+# Assumes that $IMAGE is already defined
+
+# Copies a file from the host into the container
+# Uses a temporary mount dir instead of cat
+function copy_to_container() {
+  SOURCE_FILE="$1"
+  TARGET_FILE="$2"
+  MODE=${3:-644}
+
+  if [ ! -f "$SOURCE_FILE" ]; then
+    echo "Source file does not exist on host: $SOURCE_FILE"
+    exit 1
+  fi
+
+  DIR=$(dirname $TARGET_FILE)
+  SOURCE_FILENAME=$(basename $SOURCE_FILE)
+
+  # Create a temp directory that we can mount inside our container
+  TMPDIR=$(mktemp -t -d copy.XXXXX)
+
+  # Copy the file
+  cp $SOURCE_FILE $TMPDIR/$SOURCE_FILENAME
+
+  # Create the script to run
+  echo "mkdir -p $DIR 2>&1 >/dev/null || true; cp -a /app/tmp/$SOURCE_FILENAME $TARGET_FILE && chmod $MODE $TARGET_FILE" > $TMPDIR/copy
+  chmod +x $TMPDIR/copy
+
+  # Mount the temp dir and run our script
+  id=$(docker run -v $TMPDIR:/app/tmp:ro -d $IMAGE /bin/bash -c /app/tmp/copy)
+  test $(docker wait $id) -eq 0
+
+  # Clean up temp dir
+  rm -Rf $TMPDIR
+
+  # Commit changes to image
+  docker commit $id $IMAGE > /dev/null
+}
+
+function fetch_forego() {
+    # We are fetching the current release, which may be a naive approach
+    FOREGO_URL=${FOREGO_URL:-https://godist.herokuapp.com/projects/ddollar/forego/releases/current/linux-amd64/forego}
+    DESTINATION=$1
+    if [ ! -f "$DESTINATION" ]; then
+        echo -n "Fetching forego binary from $FOREGO_URL..."
+        curl --silent -L -o "$DESTINATION" $FOREGO_URL
+        chmod +x $DESTINATION
+        echo "Done"
+    fi
+}
+
+function update_forego() {
+    DESTINATION=$1
+    $DESTINATION update || true
+}
