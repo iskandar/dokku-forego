@@ -3,22 +3,23 @@
 # This script replaces /start in the container.
 # It is copied over /start in the 'post-release' hook script.
 
-set -ex
+set -eu
+
 export HOME=/app
 for file in $HOME/.profile.d/*; do source $file; done
 hash -r
 cd $HOME
 
 SCALE_FILE=/SCALE
-FOREGO_BIN=$HOME/vendor/forego/bin/forego
-chmod +x $FOREGO_BIN
+OPTIONS="-r "
 
 # If we have a SCALE file, let's use it
 if [ -f "$SCALE_FILE" ]; then
     # Strip empty lines and replace newlines with commas
     # Also strip any trailing comma
-    $FOREGO_BIN start -c $(grep -v '^$' $SCALE_FILE | tr '\r?\n' ',' | sed 's/,$//')
-else
-    $FOREGO_BIN start
+    OPTIONS="$OPTIONS -c $(grep -v '^$' $SCALE_FILE | tr '\r?\n' ',' | sed 's/,$//')"
 fi
+
+set -x
+$HOME/vendor/forego/bin/forego start $OPTIONS
 
