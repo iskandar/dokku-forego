@@ -52,5 +52,10 @@ function fetch_forego() {
 
 function update_forego() {
     DESTINATION=$1
-    $DESTINATION update || true
+    if [ ! -f $DESTINATION ]; then
+        fetch_forego $DESTINATION
+        echo "forego version: $($DESTINATION version)"
+    else
+        $DESTINATION update || true
+    fi
 }

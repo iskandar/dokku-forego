@@ -19,6 +19,8 @@ else
 fi
 
 echo "-----> Fetching forego binary..."
+# Create the cache directory if it doesn't exist
+[ ! -d $CACHE_DIR ] && mkdir -p $CACHE_DIR
 FOREGO_BIN="$CACHE_DIR/forego"
 fetch_forego $FOREGO_BIN
 copy_to_container "$FOREGO_BIN" /app/vendor/forego/bin/forego 755

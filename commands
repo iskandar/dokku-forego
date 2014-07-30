@@ -50,7 +50,12 @@ case "$1" in
 
   forego:version)
     echo -n "forego version: "
-    $CACHE_DIR/forego version
+    if [ -e $CACHE_DIR/forego ]; then
+        $CACHE_DIR/forego version
+    else
+        echo "forego binary not found in $CACHE_DIR/"
+        echo "You can run forego:update or re-release any container to install the latest forego binary."
+    fi
     ;;
 
   help)
