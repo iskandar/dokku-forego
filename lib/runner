@@ -3,7 +3,7 @@
 # This script replaces /start in the container.
 # It is copied over /start in the 'post-release' hook script.
 
-set -eu
+set -e
 
 export HOME=/app
 for file in $HOME/.profile.d/*; do source $file; done
