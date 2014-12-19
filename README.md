@@ -35,9 +35,6 @@ If the file does not exist then a single process of each type will be created fo
 Procfile. Additional lines in the file ignored.
 
 __Note:__ All the processes will run in same Docker container. They do *not* run in separate containers.
-This means that if you have multiple "web" processes they will each try to listen on the same `PORT` environment
-variable. For this to work properly you should use the socket option [SO_REUSEPORT](https://lwn.net/Articles/542629/).
-If that is not available then you will need to stick with a single web process.
 
 Rather than editing the file manually you can use the command:
 
@@ -49,6 +46,24 @@ It will just kill and restart your application.
 Adding the `SCALE` file is done by copying it into the container. This adds another layer to the
 container's AUFS. As there is a max number of layers you may need to occasionally run a rebuild
 (try `dokku rebuild myapp`) to rebase the container.
+
+## Ports
+
+Each item in the `procfile` will be run with a `PORT` environment variable starting with the default value of `5000` and incremented by 100 for each item.
+
+For example, given the following `Procfile`:
+
+    web1: node server.js
+    web2: python serve.py
+    web3: bundle exec thin start
+
+Ports will be specified like this:
+
+* `web1` will start with `PORT=5000` 
+* `web2` will start with `PORT=5100` 
+* `web3` will start with `PORT=5200` 
+
+This behaviour is baked in to `forego` - so be aware that the ordering of `Procfile` items is significant!
 
 ## Similar plugins
 
