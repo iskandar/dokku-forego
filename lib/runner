@@ -3,23 +3,33 @@
 # This script replaces /start in the container.
 # It is copied over /start in the 'post-release' hook script.
 
-set -e
-
 export HOME=/app
-for file in $HOME/.profile.d/*; do source $file; done
+username=$(egrep "^u[1-9]+" /etc/passwd 2> /dev/null | awk -F':' '{ print $1 }')
+chown -R $username:$username /app
+cd /app
+
+for file in .profile.d/*.sh; do
+  source $file
+done
 hash -r
-cd $HOME
 
-SCALE_FILE=/SCALE
-OPTIONS="-r "
+case "$(basename $0)" in
+  start)
+    SCALE_FILE=/SCALE
+    OPTIONS="-r "
 
-# If we have a SCALE file, let's use it
-if [ -f "$SCALE_FILE" ]; then
-    # Strip empty lines and replace newlines with commas
-    # Also strip any trailing comma
-    OPTIONS="$OPTIONS -c $(grep -v '^$' $SCALE_FILE | tr '\r?\n' ',' | sed 's/,$//')"
-fi
+    # If we have a SCALE file, let's use it
+    if [ -f "$SCALE_FILE" ]; then
+        # Strip empty lines and replace newlines with commas
+        # Also strip any trailing comma
+        OPTIONS="$OPTIONS -c $(grep -v '^$' $SCALE_FILE | tr '\r?\n' ',' | sed 's/,$//')"
+    fi
 
-set -x
-$HOME/vendor/forego/bin/forego start $OPTIONS
-
+    set -x
+    command="$HOME/vendor/forego/bin/forego start $OPTIONS"
+    ;;
+  *)
+    command="$@"
+    ;;
+esac
+setuidgid $username $(eval echo ${command})
