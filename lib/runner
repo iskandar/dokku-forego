@@ -26,7 +26,6 @@ case "$(basename $0)" in
         OPTIONS="$OPTIONS -c $(grep -v '^$' $SCALE_FILE | tr '\r?\n' ',' | sed 's/,$//')"
     fi
 
-    set -x
     command="$HOME/vendor/forego/bin/forego start $OPTIONS"
     ;;
   *)
