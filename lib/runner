@@ -11,7 +11,12 @@ cd /app
 for file in .profile.d/*.sh; do
   source $file
 done
-cat .profile.d/*env* .profile.d/*var* > .env
+
+rm -f .env
+for file in $(find .profile.d -name '0*.sh'); do
+  cat $file >> .env
+done
+
 hash -r
 
 case "$(basename $0)" in
