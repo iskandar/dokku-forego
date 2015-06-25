@@ -5,33 +5,23 @@
 
 export HOME=/app
 username=$(egrep "^u[1-9]+" /etc/passwd 2> /dev/null | awk -F':' '{ print $1 }')
-chown -R $username:$username /app
+chown -R "$username":"$username" /app
 cd /app
 
 for file in .profile.d/*.sh; do
-  source $file
+  source "$file"
 done
 
 rm -f .env
 for file in $(find .profile.d -name '0*.sh'); do
-  cat $file >> .env
+  cat "$file" >> .env
 done
 
 hash -r
 
 case "$(basename $0)" in
   start)
-    SCALE_FILE=/SCALE
-    OPTIONS="-r "
-
-    # If we have a SCALE file, let's use it
-    if [ -f "$SCALE_FILE" ]; then
-        # Strip empty lines and replace newlines with commas
-        # Also strip any trailing comma
-        OPTIONS="$OPTIONS -c $(grep -v '^$' $SCALE_FILE | tr '\r?\n' ',' | sed 's/,$//')"
-    fi
-
-    command="$HOME/vendor/forego/bin/forego start $OPTIONS"
+    command="$HOME/vendor/forego/bin/forego start $1 -r"
     ;;
   *)
     command="$@"

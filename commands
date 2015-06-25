@@ -8,42 +8,6 @@ DOKKU_ROOT=${DOKKU_ROOT:-/home/dokku}
 CACHE_DIR="$DOKKU_ROOT/.cache"
 
 case "$1" in
-  scale)
-    if [[ -z $2 ]]; then
-      echo "Please specify an app to scale"
-      exit 1
-    fi
-    APP="$2"
-    IMAGE="dokku/$APP"
-    REPO="$DOKKU_ROOT/$APP"
-    if [ ! -d "$REPO" ]; then
-      echo "No matching app: $APP"
-      exit 1
-    fi
-    shift 2
-
-    SCALEFILE="$REPO/SCALE"
-    for line in "$@"
-    do
-      echo "$line"
-    done > "$SCALEFILE"
-
-    # kill the app when running
-    echo "Checking for existing running application"
-    if [[ -f "$DOKKU_ROOT/$APP/CONTAINER" ]]; then
-      echo "Existing running application found. Will kill it."
-      oldid=$(< "$DOKKU_ROOT/$APP/CONTAINER")
-      docker kill $oldid > /dev/null 2>&1 || true
-      echo "Killed running application."
-    fi
-
-    echo "Scaling app $APP:"
-    cat -n "$REPO/SCALE"
-    copy_to_container "$SCALEFILE" /SCALE
-
-    dokku deploy "$APP"
-    ;;
-
   forego:update)
     update_forego $CACHE_DIR/forego
     ;;
@@ -60,7 +24,6 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    scale <app> TYPE1=NUM1 [TYPE2=NUM2 ...]         Scale an app
     forego:update                                   Update the forego binary. Changes take effect in containers on the next release.
     forego:version                                  Show the forego binary version
 EOF
