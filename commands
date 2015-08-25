@@ -24,8 +24,8 @@ case "$1" in
 
   help)
     cat && cat<<EOF
-    forego:update                                   Update the forego binary. Changes take effect in containers on the next release.
-    forego:version                                  Show the forego binary version
+    forego:update, Update the forego binary. Changes take effect in containers on the next release.
+    forego:version, Show the forego binary version
 EOF
   ;;
 
